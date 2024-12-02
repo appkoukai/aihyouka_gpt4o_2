@@ -1,0 +1,10 @@
+streamlit
+openai
+scikit-learn
+janome
+pandas
+networkx
+matplotlib
+numpy
+seaborn
+matplotlib_fontja
