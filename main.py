@@ -1,6 +1,6 @@
 import sys
 import streamlit as st
-import openai
+from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from janome.tokenizer import Tokenizer
 import pandas as pd
@@ -217,14 +217,14 @@ class AIEvaluator:
     """AI評価を管理するクラス"""
     def __init__(self, config: TextAnalysisConfig):
         self.config = config
-        openai.api_key = st.secrets["OPENAI_API_KEY"]
+        self.client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
         
     def generate_initial_evaluation(self, text: str, keywords: List[Tuple[str, float, int]], 
                                     evaluation_points: List[str]) -> str:
         """初期評価の生成"""
         try:
             prompt = self._create_evaluation_prompt(text, keywords, evaluation_points)
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.config.model_name,
                 messages=[
                     {"role": "system", "content": "あなたは文章分析の専門家です。与えられた文章を分析し、評価を行ってください。"},
@@ -241,7 +241,7 @@ class AIEvaluator:
         """追加評価と修正の生成"""
         try:
             prompt = self._create_additional_evaluation_prompt(previous_evaluation, additional_points, corrections)
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.config.model_name,
                 messages=[
                     {"role": "system", "content": "あなたは文章分析の専門家です。前回の評価を踏まえて、追加の評価と修正を行ってください。"},
